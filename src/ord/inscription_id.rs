@@ -21,21 +21,21 @@ impl Default for InscriptionId {
 }
 
 impl InscriptionId {
-    pub(crate) fn parent_value(self) -> Vec<u8> {
-        let index = self.index.to_le_bytes();
-        let mut index_slice = index.as_slice();
+    // pub(crate) fn parent_value(self) -> Vec<u8> {
+    //     let index = self.index.to_le_bytes();
+    //     let mut index_slice = index.as_slice();
 
-        while index_slice.last().copied() == Some(0) {
-            index_slice = &index_slice[0..index_slice.len() - 1];
-        }
+    //     while index_slice.last().copied() == Some(0) {
+    //         index_slice = &index_slice[0..index_slice.len() - 1];
+    //     }
 
-        self.txid
-            .to_byte_array()
-            .iter()
-            .chain(index_slice)
-            .copied()
-            .collect()
-    }
+    //     self.txid
+    //         .to_byte_array()
+    //         .iter()
+    //         .chain(index_slice)
+    //         .copied()
+    //         .collect()
+    // }
 }
 
 impl Display for InscriptionId {

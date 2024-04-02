@@ -21,8 +21,8 @@ use substreams::store::{
     DeltaBigInt, Deltas, StoreAdd, StoreAddBigInt, StoreGet, StoreGetProto, StoreNew, StoreSet,
     StoreSetProto,
 };
-use substreams_entity_change::pb::entity::EntityChanges;
-use substreams_entity_change::tables::Tables;
+use substreams_database_change::tables::Tables;
+use substreams_database_change::pb::database::{ DatabaseChanges};
 
 struct Location {
     pub utxo: String,
@@ -41,8 +41,9 @@ fn map_brc20_events(block: btc::Block) -> Result<Brc20Events, substreams::errors
                 .contains("746578742f706c61696e3b636861727365743d7574662d38")
         })
         .flat_map(|tx| {
+           
             let txid = tx.txid.clone();
-            match parse_inscriptions(&tx) {
+                        match parse_inscriptions(&tx) {
                 Ok(inscriptions) => inscriptions
                     .into_iter()
                     .filter(|inscription| {
@@ -131,7 +132,7 @@ fn map_brc20_events(block: btc::Block) -> Result<Brc20Events, substreams::errors
             .iter()
             .filter_map(|(location, address, event)| match (address, event) {
                 (Some(address), Brc20Event::Transfer(transfer)) => Some(InscribedTransfer {
-                    id: "".into(),
+                    id: location.utxo.split(':').next().unwrap_or("").to_string(),
                     token: transfer.tick(),
                     // to: "".into(),
                     from: address.into(),
@@ -258,6 +259,7 @@ fn map_resolve_transfers(
                     transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
                 {
                     let (vout, _) = tx.nth_sat_utxo(inscribed_transfer_loc.offset)?;
+                    
                     Some(ExecutedTransfer {
                         id: inscribed_transfer_loc.id,
                         token: inscribed_transfer_loc.token,
@@ -298,36 +300,40 @@ fn map_resolve_transfers(
 }
 
 #[substreams::handlers::map]
-fn graph_out(
+fn db_out(
     clock: Clock,
     events: Brc20Events,
     balances_store: Deltas<DeltaBigInt>,
     transferable_balances_store: Deltas<DeltaBigInt>,
-) -> Result<EntityChanges, substreams::errors::Error> {
-    let mut tables = Tables::new();
+) -> Result<DatabaseChanges, substreams::errors::Error> {
+    let mut tables: Tables = Tables::new();
 
     events.deploys.iter().for_each(|deploy| {
         tables
-            .create_row("Deploy", deploy.id.clone())
-            .set("token", deploy.symbol.clone())
-            .set("deployer", deploy.deployer.clone())
-            .set("timestamp", clock.number.clone())
-            .set(
-                "block",
-                clock
-                    .timestamp
-                    .as_ref()
-                    .map(|t| t.seconds)
-                    .unwrap_or_default(),
-            );
+        .create_row("Deploy", clock
+        .timestamp
+        .as_ref()
+        .map(|t| t.seconds)
+        .unwrap_or_default().to_string())
+        .set("token", deploy.symbol.clone())
+        .set("deployer", deploy.deployer.clone())
+        .set("timestamp", clock.number.clone())
+        .set(
+            "block",
+            clock
+                .timestamp
+                .as_ref()
+                .map(|t| t.seconds)
+                .unwrap_or_default(),
+        );
 
-        tables
-            .create_row("Token", deploy.symbol.clone())
-            .set("symbol", deploy.symbol.clone())
-            .set_bigint("max_supply", &deploy.max_supply)
-            .set_bigint("mint_limit", &deploy.mint_limit)
-            .set("decimals", deploy.decimals.clone())
-            .set("deployment", deploy.id.clone());
+    tables
+        .create_row("Token", deploy.symbol.clone().to_string())
+        .set("symbol", deploy.symbol.clone().to_string())
+        .set("max_supply", &deploy.max_supply.to_string())  
+        .set("mintlimit", &deploy.mint_limit.to_string())
+        .set("decimals", deploy.decimals.clone().to_string())
+        .set("deployment", deploy.id.clone().to_string());
     });
 
     events.mints.iter().for_each(|mint| {
@@ -335,7 +341,7 @@ fn graph_out(
             .create_row("Mint", mint.id.clone())
             .set("token", mint.token.clone())
             .set("to", mint.to.clone())
-            .set_bigint("amount", &mint.amount);
+            .set("amount", &mint.amount);
     });
 
     events.executed_transfers.iter().for_each(|transfer| {
@@ -344,7 +350,7 @@ fn graph_out(
             .set("token", transfer.token.clone())
             .set("from", transfer.from.clone())
             .set("to", transfer.to.clone())
-            .set_bigint("amount", &transfer.amount);
+            .set("amount", &transfer.amount);
     });
 
     balances_store
@@ -365,18 +371,21 @@ fn graph_out(
                 };
 
                 tables
-                    .create_row("AccountBalance", delta.key.clone())
+                    .create_row("Balance", delta.key.clone())
                     .set("account", account.to_string())
                     .set("token", token.to_string())
-                    .set_bigint("balance", &delta.new_value.to_string())
-                    .set_bigint("transferable", &"0".into());
+                    .set("balance", &delta.new_value.to_string())
+                    .set::<String>("transferable", "0".to_string().into());
 
-                tables.create_row("Account", account);
+                // tables.create_row("Account", account);
+                tables
+            .create_row("Account",account)
+            .set("address", account.clone().to_string());
             }
             Operation::Update => {
-                tables
-                    .update_row("AccountBalance", delta.key.clone())
-                    .set_bigint("balance", &delta.new_value.to_string());
+                // tables
+                //     .update_row("Balance", delta.key.clone())
+                //     .set("balance", &delta.new_value.to_string());
             }
             _ => (),
         });
@@ -387,10 +396,11 @@ fn graph_out(
         // This is because an account can only have a transferable balance if it has a balance
         // in the first place, which is created when the account is the recipient of either a Mint
         // or a Transfer event.
-        tables
-            .update_row("AccountBalance", delta.key.clone())
-            .set_bigint("transferable", &delta.new_value.to_string());
+        // tables
+        //     .update_row("Balance", delta.key.clone())
+        //     .set("transferable", &delta.new_value.to_string());
     });
 
-    Ok(tables.to_entity_changes())
+    Ok(tables.to_database_changes())
 }
+
