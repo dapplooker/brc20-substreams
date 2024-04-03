@@ -1,9 +1,9 @@
 use anyhow::{Ok, Result};
-use regex::Regex;
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use substreams_ethereum::Abigen;
+// use regex::Regex;
+// use std::fs;
+// use std::fs::File;
+// use std::io::Write;
+// use substreams_ethereum::Abigen;
 
 fn main() -> Result<(), anyhow::Error> {
     // let contents = fs::read_to_string("abi/contract.abi.json")

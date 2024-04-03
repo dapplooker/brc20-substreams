@@ -1,6 +1,6 @@
-use bitcoin::{hashes::Hash, Txid};
+// use bitcoin::{hashes::Hash, Txid};
 
-use super::inscription_id::InscriptionId;
+// use super::inscription_id::InscriptionId;
 
 use {
     super::*,
@@ -11,7 +11,7 @@ use {
         },
         ScriptBuf,
     },
-    http::header::HeaderValue,
+    // http::header::HeaderValue,
     std::str,
 };
 
@@ -39,15 +39,15 @@ impl Inscription {
         }
     }
 
-    pub(crate) fn pointer_value(pointer: u64) -> Vec<u8> {
-        let mut bytes = pointer.to_le_bytes().to_vec();
+    // pub(crate) fn pointer_value(pointer: u64) -> Vec<u8> {
+    //     let mut bytes = pointer.to_le_bytes().to_vec();
 
-        while bytes.last().copied() == Some(0) {
-            bytes.pop();
-        }
+    //     while bytes.last().copied() == Some(0) {
+    //         bytes.pop();
+    //     }
 
-        bytes
-    }
+    //     bytes
+    // }
 
     pub(crate) fn append_reveal_script_to_builder(
         &self,
@@ -110,83 +110,83 @@ impl Inscription {
         self.append_reveal_script_to_builder(builder).into_script()
     }
 
-    pub(crate) fn append_batch_reveal_script_to_builder(
-        inscriptions: &[Inscription],
-        mut builder: script::Builder,
-    ) -> script::Builder {
-        for inscription in inscriptions {
-            builder = inscription.append_reveal_script_to_builder(builder);
-        }
+    // pub(crate) fn append_batch_reveal_script_to_builder(
+    //     inscriptions: &[Inscription],
+    //     mut builder: script::Builder,
+    // ) -> script::Builder {
+    //     for inscription in inscriptions {
+    //         builder = inscription.append_reveal_script_to_builder(builder);
+    //     }
 
-        builder
-    }
+    //     builder
+    // }
 
-    pub(crate) fn append_batch_reveal_script(
-        inscriptions: &[Inscription],
-        builder: script::Builder,
-    ) -> ScriptBuf {
-        Inscription::append_batch_reveal_script_to_builder(inscriptions, builder).into_script()
-    }
+    // pub(crate) fn append_batch_reveal_script(
+    //     inscriptions: &[Inscription],
+    //     builder: script::Builder,
+    // ) -> ScriptBuf {
+    //     Inscription::append_batch_reveal_script_to_builder(inscriptions, builder).into_script()
+    // }
 
     pub(crate) fn body(&self) -> Option<&[u8]> {
         Some(self.body.as_ref()?)
     }
 
-    pub(crate) fn into_body(self) -> Option<Vec<u8>> {
-        self.body
-    }
+    // pub(crate) fn into_body(self) -> Option<Vec<u8>> {
+    //     self.body
+    // }
 
-    pub(crate) fn content_length(&self) -> Option<usize> {
-        Some(self.body()?.len())
-    }
+    // pub(crate) fn content_length(&self) -> Option<usize> {
+    //     Some(self.body()?.len())
+    // }
 
     pub(crate) fn content_type(&self) -> Option<&str> {
         str::from_utf8(self.content_type.as_ref()?).ok()
     }
 
-    pub(crate) fn content_encoding(&self) -> Option<HeaderValue> {
-        HeaderValue::from_str(str::from_utf8(self.content_encoding.as_ref()?).unwrap_or_default())
-            .ok()
-    }
+    // pub(crate) fn content_encoding(&self) -> Option<HeaderValue> {
+    //     HeaderValue::from_str(str::from_utf8(self.content_encoding.as_ref()?).unwrap_or_default())
+    //         .ok()
+    // }
 
-    pub(crate) fn metaprotocol(&self) -> Option<&str> {
-        str::from_utf8(self.metaprotocol.as_ref()?).ok()
-    }
+    // pub(crate) fn metaprotocol(&self) -> Option<&str> {
+    //     str::from_utf8(self.metaprotocol.as_ref()?).ok()
+    // }
 
-    pub(crate) fn parent(&self) -> Option<InscriptionId> {
-        let value = self.parent.as_ref()?;
+    // pub(crate) fn parent(&self) -> Option<InscriptionId> {
+    //     let value = self.parent.as_ref()?;
 
-        if value.len() < Txid::LEN {
-            return None;
-        }
+    //     if value.len() < Txid::LEN {
+    //         return None;
+    //     }
 
-        if value.len() > Txid::LEN + 4 {
-            return None;
-        }
+    //     if value.len() > Txid::LEN + 4 {
+    //         return None;
+    //     }
 
-        let (txid, index) = value.split_at(Txid::LEN);
+    //     let (txid, index) = value.split_at(Txid::LEN);
 
-        if let Some(last) = index.last() {
-            // Accept fixed length encoding with 4 bytes (with potential trailing zeroes)
-            // or variable length (no trailing zeroes)
-            if index.len() != 4 && *last == 0 {
-                return None;
-            }
-        }
+    //     if let Some(last) = index.last() {
+    //         // Accept fixed length encoding with 4 bytes (with potential trailing zeroes)
+    //         // or variable length (no trailing zeroes)
+    //         if index.len() != 4 && *last == 0 {
+    //             return None;
+    //         }
+    //     }
 
-        let txid = Txid::from_slice(txid).unwrap();
+    //     let txid = Txid::from_slice(txid).unwrap();
 
-        let index = [
-            index.first().copied().unwrap_or(0),
-            index.get(1).copied().unwrap_or(0),
-            index.get(2).copied().unwrap_or(0),
-            index.get(3).copied().unwrap_or(0),
-        ];
+    //     let index = [
+    //         index.first().copied().unwrap_or(0),
+    //         index.get(1).copied().unwrap_or(0),
+    //         index.get(2).copied().unwrap_or(0),
+    //         index.get(3).copied().unwrap_or(0),
+    //     ];
 
-        let index = u32::from_le_bytes(index);
+    //     let index = u32::from_le_bytes(index);
 
-        Some(InscriptionId { txid, index })
-    }
+    //     Some(InscriptionId { txid, index })
+    // }
 
     pub(crate) fn pointer(&self) -> Option<u64> {
         let value = self.pointer.as_ref()?;

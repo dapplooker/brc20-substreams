@@ -52,3 +52,7 @@ For a checklist of indexing rules covered by this subtreams, see [checklist.md](
 
 ## License
 [Apache 2.0](LICENSE)
+
+
+## Update
+- Add a db_out map module to sink the data to your database. Created schema for both Postgress db and Clickhouse db. 

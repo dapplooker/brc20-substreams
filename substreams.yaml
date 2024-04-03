@@ -2,9 +2,9 @@ specVersion: v0.1.0
 package:
   name: brc20
   version: v0.1.0
-  image: assets/logo.png
 
 imports:
+  database_change: https://github.com/streamingfast/substreams-sink-database-changes/releases/download/v1.2.0/substreams-database-change-v1.2.0.spkg
   bitcoin: https://github.com/streamingfast/firehose-bitcoin/releases/download/v1.0.0-rc.1/bitcoin-v1.0.0.spkg
   graph: https://github.com/streamingfast/substreams-sink-subgraph/releases/download/v0.1.0/substreams-sink-subgraph-protodefs-v0.1.0.spkg
   entity: https://github.com/streamingfast/substreams-entity-change/releases/download/v1.1.0/substreams-entity-change-v1.1.0.spkg
@@ -80,7 +80,7 @@ modules:
     inputs:
       - map: map_resolve_transfers
 
-  - name: graph_out
+  - name: db_out
     kind: map
     initialBlock: 779830
     inputs:
@@ -91,7 +91,7 @@ modules:
       - store: store_transferable_balances
         mode: deltas
     output:
-      type: proto:sf.substreams.entity.v1.EntityChanges
+      type: proto:sf.substreams.sink.database.v1.DatabaseChanges
 
 # network: bitcoin
 # sink:
