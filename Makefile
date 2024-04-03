@@ -28,4 +28,4 @@ create_clickhouse_db:
 
 .PHONY: sink_clickhouse_db_out
 sink_clickhouse_db_out: build
-	substreams-sink-sql run -e mainnet.btc.streamingfast.io:443 --on-module-hash-mistmatch=warn "$(DSN)" sink/substreams-clickhouse.dev.yaml 779830:7799300 --undo-buffer-size 10
+	substreams-sink-sql run -e mainnet.btc.streamingfast.io:443 --on-module-hash-mistmatch=warn --flush-interval 1 "$(DSN)" sink/substreams-clickhouse.dev.yaml 779830:7799300 --undo-buffer-size 10

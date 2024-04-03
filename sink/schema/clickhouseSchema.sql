@@ -1,8 +1,8 @@
 -- Create schema
-CREATE DATABASE IF NOT EXISTS brc;
+CREATE DATABASE IF NOT EXISTS brc20_token;
 
 -- Create cursors table
-CREATE TABLE IF NOT EXISTS brc.cursors (
+CREATE TABLE IF NOT EXISTS brc20_token.cursors (
     id        String NOT NULL,
     cursor    String,
     block_num Int64,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS brc.cursors (
     PRIMARY KEY (id)
     ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc.Deploy (
+CREATE TABLE IF NOT EXISTS brc20_token.Deploy (
     id          String,
     deployer    String,
     block       String,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS brc.Deploy (
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc.Token (
+CREATE TABLE IF NOT EXISTS brc20_token.Token (
     id           String,
     deployment   FixedString(70),
     decimals     Int32,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS brc.Token (
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc.Mint (
+CREATE TABLE IF NOT EXISTS brc20_token.Mint (
     id       String,
     token    FixedString(70),
     to       FixedString(70),
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS brc.Mint (
 ) ENGINE = MergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc.Transfer (
+CREATE TABLE IF NOT EXISTS brc20_token.Transfer (
     id         String,
     token      FixedString(70),
     to         FixedString(70),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS brc.Transfer (
 ORDER BY (id);
 
 
-CREATE TABLE IF NOT EXISTS brc.Balance (
+CREATE TABLE IF NOT EXISTS brc20_token.Balance (
     id            String,
     token         FixedString(70),
     account       FixedString(70),
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS brc.Balance (
 ORDER BY (id);
 
 
-CREATE TABLE IF NOT EXISTS brc.Account (
+CREATE TABLE IF NOT EXISTS brc20_token.Account (
     address    FixedString(70)
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (address);
