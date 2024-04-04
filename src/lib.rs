@@ -361,6 +361,7 @@ fn db_out(
     });
 
     events.executed_transfers.iter().for_each(|transfer| {
+        let amount_as_int: i64 = transfer.amount.parse().unwrap_or(0); 
         tables
             .create_row("Transfer", transfer.id.clone())
             .set("token", transfer.token.clone())
@@ -374,7 +375,7 @@ fn db_out(
                     .map(|t| t.seconds)
                     .unwrap_or_default(),
             )
-            .set("amount", &transfer.amount);
+            .set("amount", amount_as_int);
     });
 
     balances_store
@@ -398,7 +399,7 @@ fn db_out(
                     .create_row("Balance", delta.key.clone())
                     .set("account", account.to_string())
                     .set("token", token.to_string())
-                    .set("balance", &delta.new_value.to_string())
+                    .set("balance", &delta.new_value)
                     .set(
                         "timestamp",
                         clock
