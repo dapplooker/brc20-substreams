@@ -1,8 +1,8 @@
 -- Create schema
-CREATE DATABASE IF NOT EXISTS brc20_token;
+CREATE DATABASE IF NOT EXISTS brc20;
 
 -- Create cursors table
-CREATE TABLE IF NOT EXISTS brc20_token.cursors (
+CREATE TABLE IF NOT EXISTS brc20.cursors (
     id        String NOT NULL,
     cursor    String,
     block_num Int64,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS brc20_token.cursors (
     PRIMARY KEY (id)
     ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc20_token.Deploy (
+CREATE TABLE IF NOT EXISTS brc20.Deploy (
     id          String,
     deployer    String,
     block       String,
@@ -20,45 +20,49 @@ CREATE TABLE IF NOT EXISTS brc20_token.Deploy (
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc20_token.Token (
+CREATE TABLE IF NOT EXISTS brc20.Token (
     id           String,
     deployment   FixedString(70),
     decimals     Int32,
     max_supply   String,
     symbol       FixedString(70),
-    mintlimit    String
+    mintlimit    String,
+     timestamp   String,
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc20_token.Mint (
+CREATE TABLE IF NOT EXISTS brc20.Mint (
     id       String,
     token    FixedString(70),
     to       FixedString(70),
-    amount   String
+    amount   String,
+    timestamp   String,
 ) ENGINE = MergeTree()
 ORDER BY (id);
 
-CREATE TABLE IF NOT EXISTS brc20_token.Transfer (
+CREATE TABLE IF NOT EXISTS brc20.Transfer (
     id         String,
     token      FixedString(70),
     to         FixedString(70),
     from       FixedString(70),
-    amount     String
+    amount     String,
+    timestamp   String,
 ) ENGINE = MergeTree()
 ORDER BY (id);
 
 
-CREATE TABLE IF NOT EXISTS brc20_token.Balance (
+CREATE TABLE IF NOT EXISTS brc20.Balance (
     id            String,
     token         FixedString(70),
     account       FixedString(70),
     balance       String,
-    transferable  String
+    transferable  String,
+    timestamp   String,
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (id);
 
 
-CREATE TABLE IF NOT EXISTS brc20_token.Account (
+CREATE TABLE IF NOT EXISTS brc20.Account (
     address    FixedString(70)
 ) ENGINE = ReplacingMergeTree()
 ORDER BY (address);

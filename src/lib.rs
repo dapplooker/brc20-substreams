@@ -317,9 +317,9 @@ fn db_out(
         .unwrap_or_default().to_string())
         .set("token", deploy.symbol.clone())
         .set("deployer", deploy.deployer.clone())
-        .set("timestamp", clock.number.clone())
+        .set("block", clock.number.clone())
         .set(
-            "block",
+            "timestamp",
             clock
                 .timestamp
                 .as_ref()
@@ -333,6 +333,14 @@ fn db_out(
         .set("max_supply", &deploy.max_supply.to_string())  
         .set("mintlimit", &deploy.mint_limit.to_string())
         .set("decimals", deploy.decimals.clone().to_string())
+        .set(
+            "timestamp",
+            clock
+                .timestamp
+                .as_ref()
+                .map(|t| t.seconds)
+                .unwrap_or_default(),
+        )
         .set("deployment", deploy.id.clone().to_string());
     });
 
@@ -341,6 +349,14 @@ fn db_out(
             .create_row("Mint", mint.id.clone())
             .set("token", mint.token.clone())
             .set("to", mint.to.clone())
+            .set(
+                "timestamp",
+                clock
+                    .timestamp
+                    .as_ref()
+                    .map(|t| t.seconds)
+                    .unwrap_or_default(),
+            )
             .set("amount", &mint.amount);
     });
 
@@ -350,6 +366,14 @@ fn db_out(
             .set("token", transfer.token.clone())
             .set("from", transfer.from.clone())
             .set("to", transfer.to.clone())
+            .set(
+                "timestamp",
+                clock
+                    .timestamp
+                    .as_ref()
+                    .map(|t| t.seconds)
+                    .unwrap_or_default(),
+            )
             .set("amount", &transfer.amount);
     });
 
@@ -375,6 +399,14 @@ fn db_out(
                     .set("account", account.to_string())
                     .set("token", token.to_string())
                     .set("balance", &delta.new_value.to_string())
+                    .set(
+                        "timestamp",
+                        clock
+                            .timestamp
+                            .as_ref()
+                            .map(|t| t.seconds)
+                            .unwrap_or_default(),
+                    )
                     .set::<String>("transferable", "0".to_string().into());
 
                 // tables.create_row("Account", account);
