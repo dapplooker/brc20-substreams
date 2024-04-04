@@ -1,5 +1,5 @@
 # DSN ?= psql://postgres:root@localhost:5432/substreams_e?&schema="brc20"&sslmode=disable
-DSN ?= clickhouse://default:@localhost:9000/brc
+DSN ?= clickhouse://default:@localhost:9000/brc20
 ENDPOINT ?= mainnet.btc.streamingfast.io:443
 
 .PHONY: build
