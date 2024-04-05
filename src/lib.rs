@@ -255,6 +255,9 @@ fn map_resolve_transfers(
             .filter_map(|tx| {
                 // Note: Without tracking UTXO values, we can only reliably resolve transfers where the
                 // inscribed sat is held by the first input UTXO of the transaction
+                if tx.vin.is_empty() {
+                    return None;
+                }
                 if let Some(inscribed_transfer_loc) =
                     transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
                 {

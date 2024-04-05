@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS brc20.cursors (
 CREATE TABLE IF NOT EXISTS brc20.Deploy (
     id          String,
     deployer    String,
-    block       String,
+    block       Int64,
     timestamp   DateTime,
     token       String
 ) ENGINE = ReplacingMergeTree()
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS brc20.Mint (
     id       String,
     token    FixedString(70),
     to       FixedString(70),
-    amount   String,
+    amount   Int256,
     timestamp   DateTime
 ) ENGINE = MergeTree()
 ORDER BY (id);
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS brc20.Transfer (
     token      FixedString(70),
     to         FixedString(70),
     from       FixedString(70),
-    amount     Int64,
+    amount     Int256,
     timestamp   DateTime
 ) ENGINE = MergeTree()
 ORDER BY (id);
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS brc20.Balance (
     id            String,
     token         FixedString(70),
     account       FixedString(70),
-    balance       Int64,
+    balance       Int256,
     transferable  String,
     timestamp   DateTime
 ) ENGINE = ReplacingMergeTree()
