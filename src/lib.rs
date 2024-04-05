@@ -257,6 +257,7 @@ fn map_resolve_transfers(
                 // inscribed sat is held by the first input UTXO of the transaction
                 if tx.vin.is_empty() {
 					substreams::log::info!("Could not resolve vin transfer transaction");
+					None
                 } else {
 					if let Some(inscribed_transfer_loc) =
 						transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
@@ -282,8 +283,6 @@ fn map_resolve_transfers(
 						}
 						None
 					}
-				} else {
-					None
 				}
             })
             .collect::<Vec<_>>();
