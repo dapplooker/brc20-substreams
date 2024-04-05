@@ -255,18 +255,21 @@ fn map_resolve_transfers(
             .filter_map(|tx| {
                 // Note: Without tracking UTXO values, we can only reliably resolve transfers where the
                 // inscribed sat is held by the first input UTXO of the transaction
-                if !tx.vin.is_empty() {
+                if tx.vin.is_empty() {
+					substreams::log::info!("Could not resolve vin transfer transaction");
+                } else {
 					if let Some(inscribed_transfer_loc) =
 						transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
 					{
 						let (vout, _) = tx.nth_sat_utxo(inscribed_transfer_loc.offset)?;
+
 						Some(ExecutedTransfer {
 							id: inscribed_transfer_loc.id,
 							token: inscribed_transfer_loc.token,
 							from: inscribed_transfer_loc.from,
 							to: vout.address()?,
 							amount: inscribed_transfer_loc.amount,
-						});
+						})
 					} else {
 						// Log that we could not resolve transfer
 						if let Some(inscribed_transfer_loc) = tx.vin.iter().find_map(|vin| {
@@ -277,10 +280,9 @@ fn map_resolve_transfers(
 								inscribed_transfer_loc.id
 							);
 						}
-						None;
+						None
 					}
-                }
-                None;
+				}
             })
             .collect::<Vec<_>>();
 
