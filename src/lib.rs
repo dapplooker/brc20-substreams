@@ -281,6 +281,7 @@ fn map_resolve_transfers(
 						None
 					}
                 }
+                None
             })
             .collect::<Vec<_>>();
 
