@@ -260,14 +260,13 @@ fn map_resolve_transfers(
 						transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
 					{
 						let (vout, _) = tx.nth_sat_utxo(inscribed_transfer_loc.offset)?;
-
 						Some(ExecutedTransfer {
 							id: inscribed_transfer_loc.id,
 							token: inscribed_transfer_loc.token,
 							from: inscribed_transfer_loc.from,
 							to: vout.address()?,
 							amount: inscribed_transfer_loc.amount,
-						})
+						});
 					} else {
 						// Log that we could not resolve transfer
 						if let Some(inscribed_transfer_loc) = tx.vin.iter().find_map(|vin| {
@@ -278,10 +277,10 @@ fn map_resolve_transfers(
 								inscribed_transfer_loc.id
 							);
 						}
-						None
+						None;
 					}
                 }
-                None
+                None;
             })
             .collect::<Vec<_>>();
 
