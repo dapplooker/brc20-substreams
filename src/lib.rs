@@ -41,7 +41,7 @@ fn map_brc20_events(block: btc::Block) -> Result<Brc20Events, substreams::errors
                 .contains("746578742f706c61696e3b636861727365743d7574662d38")
         })
         .flat_map(|tx| {
-           
+
             let txid = tx.txid.clone();
                         match parse_inscriptions(&tx) {
                 Ok(inscriptions) => inscriptions
@@ -255,32 +255,31 @@ fn map_resolve_transfers(
             .filter_map(|tx| {
                 // Note: Without tracking UTXO values, we can only reliably resolve transfers where the
                 // inscribed sat is held by the first input UTXO of the transaction
-                if tx.vin.is_empty() {
-                    return None;
-                }
-                if let Some(inscribed_transfer_loc) =
-                    transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
-                {
-                    let (vout, _) = tx.nth_sat_utxo(inscribed_transfer_loc.offset)?;
-                    
-                    Some(ExecutedTransfer {
-                        id: inscribed_transfer_loc.id,
-                        token: inscribed_transfer_loc.token,
-                        from: inscribed_transfer_loc.from,
-                        to: vout.address()?,
-                        amount: inscribed_transfer_loc.amount,
-                    })
-                } else {
-                    // Log that we could not resolve transfer
-                    if let Some(inscribed_transfer_loc) = tx.vin.iter().find_map(|vin| {
-                        transfer_store.get_at(0, format!("{}:{}", vin.txid, vin.vout))
-                    }) {
-                        substreams::log::info!(
-                            "Could not resolve inscribed transfer {}",
-                            inscribed_transfer_loc.id
-                        );
-                    }
-                    None
+                if !tx.vin.is_empty() {
+					if let Some(inscribed_transfer_loc) =
+						transfer_store.get_at(0, format!("{}:{}", tx.vin[0].txid, tx.vin[0].vout))
+					{
+						let (vout, _) = tx.nth_sat_utxo(inscribed_transfer_loc.offset)?;
+
+						Some(ExecutedTransfer {
+							id: inscribed_transfer_loc.id,
+							token: inscribed_transfer_loc.token,
+							from: inscribed_transfer_loc.from,
+							to: vout.address()?,
+							amount: inscribed_transfer_loc.amount,
+						})
+					} else {
+						// Log that we could not resolve transfer
+						if let Some(inscribed_transfer_loc) = tx.vin.iter().find_map(|vin| {
+							transfer_store.get_at(0, format!("{}:{}", vin.txid, vin.vout))
+						}) {
+							substreams::log::info!(
+								"Could not resolve inscribed transfer {}",
+								inscribed_transfer_loc.id
+							);
+						}
+						None
+					}
                 }
             })
             .collect::<Vec<_>>();
@@ -333,7 +332,7 @@ fn db_out(
     tables
         .create_row("Token", deploy.symbol.clone().to_string())
         .set("symbol", deploy.symbol.clone().to_string())
-        .set("max_supply", &deploy.max_supply.to_string())  
+        .set("max_supply", &deploy.max_supply.to_string())
         .set("mintlimit", &deploy.mint_limit.to_string())
         .set("decimals", deploy.decimals.clone().to_string())
         .set(
@@ -364,7 +363,7 @@ fn db_out(
     });
 
     events.executed_transfers.iter().for_each(|transfer| {
-        let amount_as_int: i64 = transfer.amount.parse().unwrap_or(0); 
+        let amount_as_int: i64 = transfer.amount.parse().unwrap_or(0);
         tables
             .create_row("Transfer", transfer.id.clone())
             .set("token", transfer.token.clone())
